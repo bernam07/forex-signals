@@ -1,62 +1,62 @@
 # MT5 XGBoost Martingale Trading Bot
 
-Um bot de trading algorítmico avançado para MetaTrader 5 (MT5) que utiliza Machine Learning (XGBoost) focado em dados matemáticos estacionários (ATR, Retornos) para prever a direção a curto prazo do mercado. O bot é controlável via Telegram e emprega uma estratégia altamente agressiva de **Grid Trading com Martingale**, gerindo cestos de ordens dinâmicos e adaptando-se à volatilidade e custos da corretora em tempo real.
+An advanced algorithmic trading bot for MetaTrader 5 (MT5) that uses Machine Learning (XGBoost) focused on stationary mathematical data (ATR, Returns) to predict short-term market direction. The bot is fully controllable via Telegram and employs a highly aggressive **Grid Trading with Martingale** strategy, managing dynamic order baskets and adapting to market volatility and broker costs in real-time.
 
-## Funcionalidades Principais
+## Key Features
 
-* **Machine Learning Estacionário:** Modelo XGBClassifier treinado com variáveis blindadas (Retornos Percentuais, Distância para a MA 50, ATR Pct e RSI), eliminando o colapso do modelo perante novos máximos/mínimos do preço absoluto.
-* **Motor de Execução Martingale:** Calcula o lote inicial dinamicamente com base no saldo da conta e duplica o volume (fator 2.0x) a cada nova posição aberta contra a tendência, forçando o fecho do cesto ao mínimo ressalto do mercado.
-* **Lógica de Sobrevivência (Target Breakeven):** O alvo de lucro cresce a cada nova ordem, mas se a grelha atingir uma profundidade crítica (4+ posições), o bot abandona o lucro e ajusta o alvo para *Breakeven* (0.50€) apenas para salvar a conta.
-* **Filtros Institucionais de Proteção:**
-  * **Meta Diária (Daily Goal):** Suspensão automática das operações assim que atinge 10% de lucro sobre o capital inicial no próprio dia.
-  * **Filtro de Spread:** Bloqueia a abertura e expansão da grelha se o custo da corretora ultrapassar um limite seguro (proteção contra o *Rollover* noturno).
-* **Alertas Visuais Dinâmicos:** O motor gera gráficos invisíveis na memória (`matplotlib.use('Agg')`) traçando as tuas posições exatas e o lucro flutuante, enviando o *screenshot* diretamente para o teu Telegram assim que o mercado aperta.
+* **Stationary Machine Learning:** XGBClassifier model trained with robust, stationary variables (Percentage Returns, Distance to 50 MA, ATR Pct, and RSI), eliminating model collapse when encountering new absolute price highs or lows.
+* **Martingale Execution Engine:** Dynamically calculates the initial lot size based on the account balance and doubles the volume (2.0x multiplier) with each new position opened against the trend, forcing the basket to close at the slightest market pullback.
+* **Survival Logic (Target Breakeven):** The profit target grows with each new order, but if the grid reaches a critical depth (4+ positions), the bot abandons profit-seeking and adjusts the target to *Breakeven* (€0.50) strictly to save the account from liquidation.
+* **Institutional Protection Filters:**
+  * **Daily Goal:** Automatically suspends trading operations once it achieves a 10% daily profit based on the initial capital.
+  * **Spread Filter:** Blocks the opening and expansion of the grid if the broker's spread exceeds a safe threshold (protecting the account against the overnight *Rollover* widening).
+* **Dynamic Visual Alerts:** The engine plots invisible charts in memory (`matplotlib.use('Agg')`), marking your exact open positions and floating profit, and sends the *screenshot* directly to your Telegram the moment the market moves heavily against you.
 
-## Pré-requisitos
+## Prerequisites
 
-* Python 3.9 ou superior.
-* Terminal MetaTrader 5 instalado e a correr no Windows.
-* Conta MT5 configurada como **Hedging** (obrigatório para a grelha).
-* **Alavancagem Máxima (Ex: 1:400 ou 1:500)** se operado com bancas reduzidas (< 1.000€).
-* Permissões de "Algo Trading" ativadas com o botão verde no MT5.
+* Python 3.9 or higher.
+* MetaTrader 5 terminal installed and running on Windows.
+* MT5 account configured for **Hedging** (mandatory for grid trading).
+* **Maximum Leverage (e.g., 1:400 or 1:500)** if operating with small account balances (< €1,000).
+* "Algo Trading" permissions enabled (green button) in the MT5 terminal.
 
-## Instalação e Configuração
+## Installation and Setup
 
-1. Clona este repositório:
-```bash
+1. Clone this repository:
+~~~bash
 git clone [https://github.com/bernam07/forex-signals.git](https://github.com/bernam07/forex-signals.git)
 cd forex-signals
-```
+~~~
 
-2. Instala as dependências necessárias:
-```bash
+2. Install the required dependencies:
+~~~bash
 pip install -r requirements.txt
-```
+~~~
 
-3. Cria um ficheiro `.env` na raiz do projeto com as credenciais reais da tua conta corretora:
-```env
-MT5_LOGIN= LOGIN
-MT5_PASSWORD= PASSWORD
-MT5_SERVER= SERVIDOR
-TELEGRAM_BOT_TOKEN= TOKEN_DO_BOTFATHER
-TELEGRAM_CHAT_ID= CHAT_ID
-```
+3. Create a `.env` file in the root directory with your actual broker account credentials:
+~~~env
+MT5_LOGIN= YOUR_LOGIN
+MT5_PASSWORD= YOUR_PASSWORD
+MT5_SERVER= YOUR_SERVER_NAME
+TELEGRAM_BOT_TOKEN= YOUR_BOTFATHER_TOKEN
+TELEGRAM_CHAT_ID= YOUR_CHAT_ID
+~~~
 
-## Como Usar?
+## How to Use?
 
-Inicia o script principal:
-```bash
+Start the main script:
+~~~bash
 python main.py
-```
+~~~
 
-O bot ficará em modo de escuta. Abre o teu bot no Telegram e utiliza os seguintes comandos:
+The bot will remain in listening mode. Open your bot on Telegram and use the following commands:
 
-* `/start` - Abre o menu para selecionares o par de moedas e iniciares a máquina preditiva.
-* `/stop` - Para a análise e a abertura de novas posições (posições já abertas continuam a ser geridas até ao fecho do cesto).
-* `/status` - Mostra o estado de execução atual, par ativo e o lote a ser utilizado.
+* `/start` - Opens the menu to select the currency pair and start the predictive engine.
+* `/stop` - Stops the analysis and the opening of new initial positions (already open grids will continue to be managed until the basket closes).
+* `/status` - Shows the current execution status, active pair, and the lot size being used.
 
-## Aviso de Risco Severo
+## Severe Risk Warning
 
-Este bot utiliza uma estratégia de **Martingale**. Não possui *Stop Loss* fixo por ordem. Em vez disso, depende da alavancagem extrema e da margem livre para abrir lotes cada vez maiores e fazer o preço médio da operação. 
+This bot uses a **Martingale** strategy. It does not have a fixed *Stop Loss* per order. Instead, it relies on extreme leverage and free margin to open increasingly larger lots to average the operation's entry price. 
 
-Foi otimizado para contas **Cent** ou para uma abordagem de alto risco em capital reduzido (ex: alavancagem 1:500 com 50€ a 100€). Executar este sistema durante eventos de alto impacto (notícias macroeconómicas) ou em mercados de forte tendência unilateral sem pausas resultará no esgotamento da margem livre e na liquidação total da conta (*Margin Call*). Utilizar exclusivamente com capital de risco ("dinheiro de casino") e adotar o hábito de levantar o capital inicial assim que a conta duplicar.
+It was specifically optimized for **Cent** accounts or a high-risk approach on small capital (e.g., 1:500 leverage with €50 to €100). Running this system during high-impact macroeconomic news events or in strong, unilateral trending markets without pullbacks will result in free margin depletion and total account liquidation (*Margin Call*). Use exclusively with risk capital ("casino money") and adopt the habit of withdrawing your initial capital as soon as the account doubles.
