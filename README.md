@@ -35,11 +35,11 @@ pip install -r requirements.txt
 
 3. Cria um ficheiro `.env` na raiz do projeto com as credenciais reais da tua conta corretora:
 ```env
-MT5_LOGIN=LOGIN
-MT5_PASSWORD=PASSWORD
-MT5_SERVER=SERVIDOR
-TELEGRAM_BOT_TOKEN=TOKEN_DO_BOTFATHER
-TELEGRAM_CHAT_ID=CHAT_ID
+MT5_LOGIN= LOGIN
+MT5_PASSWORD= PASSWORD
+MT5_SERVER= SERVIDOR
+TELEGRAM_BOT_TOKEN= TOKEN_DO_BOTFATHER
+TELEGRAM_CHAT_ID= CHAT_ID
 ```
 
 ## Como Usar?
