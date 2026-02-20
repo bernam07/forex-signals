@@ -1,21 +1,24 @@
-# MT5 XGBoost Trading Bot
+# MT5 XGBoost Martingale Trading Bot
 
-Um bot de trading algorítmico para MetaTrader 5 (MT5) que utiliza Machine Learning (XGBoost) para prever a direção do mercado com base em Smart Money Concepts (SMC) e RSI. O bot é totalmente controlável remotamente através do Telegram e utiliza uma estratégia de Grid Trading com "Basket Closure" para maximizar lucros rápidos em mercados laterais.
+Um bot de trading algorítmico avançado para MetaTrader 5 (MT5) que utiliza Machine Learning (XGBoost) focado em dados matemáticos estacionários (ATR, Retornos) para prever a direção a curto prazo do mercado. O bot é controlável via Telegram e emprega uma estratégia altamente agressiva de **Grid Trading com Martingale**, gerindo cestos de ordens dinâmicos e adaptando-se à volatilidade e custos da corretora em tempo real.
 
-## Funcionalidades
+## Funcionalidades Principais
 
-* **Machine Learning:** Modelo XGBClassifier treinado dinamicamente com as últimas 50.000 velas de 5 minutos.
-* **Feature Engineering:** Deteção automática de Fair Value Gaps (FVGs), Liquidity Sweeps, tendências macro (50 MA) e RSI.
-* **Gestão Ativa (Grid & Basket Closure):** Abre múltiplas posições para fazer *cost averaging* e fecha o cesto inteiro simultaneamente quando um alvo de lucro predefinido é atingido.
-* **Controlo Remoto por Telegram:** Inicia, para, verifica o estado e altera o par de moedas em tempo real através de mensagens no Telegram.
-* **Proteção de Dados:** Credenciais geridas de forma segura através de variáveis de ambiente (`.env`).
+* **Machine Learning Estacionário:** Modelo XGBClassifier treinado com variáveis blindadas (Retornos Percentuais, Distância para a MA 50, ATR Pct e RSI), eliminando o colapso do modelo perante novos máximos/mínimos do preço absoluto.
+* **Motor de Execução Martingale:** Calcula o lote inicial dinamicamente com base no saldo da conta e duplica o volume (fator 2.0x) a cada nova posição aberta contra a tendência, forçando o fecho do cesto ao mínimo ressalto do mercado.
+* **Lógica de Sobrevivência (Target Breakeven):** O alvo de lucro cresce a cada nova ordem, mas se a grelha atingir uma profundidade crítica (4+ posições), o bot abandona o lucro e ajusta o alvo para *Breakeven* (0.50€) apenas para salvar a conta.
+* **Filtros Institucionais de Proteção:**
+  * **Meta Diária (Daily Goal):** Suspensão automática das operações assim que atinge 10% de lucro sobre o capital inicial no próprio dia.
+  * **Filtro de Spread:** Bloqueia a abertura e expansão da grelha se o custo da corretora ultrapassar um limite seguro (proteção contra o *Rollover* noturno).
+* **Alertas Visuais Dinâmicos:** O motor gera gráficos invisíveis na memória (`matplotlib.use('Agg')`) traçando as tuas posições exatas e o lucro flutuante, enviando o *screenshot* diretamente para o teu Telegram assim que o mercado aperta.
 
 ## Pré-requisitos
 
 * Python 3.9 ou superior.
-* Terminal MetaTrader 5 instalado e a correr.
-* Conta de Demonstração ativa no MT5 configurada como **Hedging** (não Netting).
-* Permissões de "Algo Trading" ativadas nas opções do MT5.
+* Terminal MetaTrader 5 instalado e a correr no Windows.
+* Conta MT5 configurada como **Hedging** (obrigatório para a grelha).
+* **Alavancagem Máxima (Ex: 1:400 ou 1:500)** se operado com bancas reduzidas (< 1.000€).
+* Permissões de "Algo Trading" ativadas com o botão verde no MT5.
 
 ## Instalação e Configuração
 
@@ -30,8 +33,14 @@ cd forex-signals
 pip install -r requirements.txt
 ```
 
-3. Cria um ficheiro .env na raiz do projeto com as tuas credenciais reais
-
+3. Cria um ficheiro `.env` na raiz do projeto com as credenciais reais da tua conta corretora:
+```env
+MT5_LOGIN=O_TEU_LOGIN
+MT5_PASSWORD=A_TUA_PASSWORD
+MT5_SERVER=O_TEU_SERVIDOR
+TELEGRAM_BOT_TOKEN=TOKEN_DO_BOTFATHER
+TELEGRAM_CHAT_ID=O_TEU_CHAT_ID
+```
 
 ## Como Usar?
 
@@ -40,14 +49,14 @@ Inicia o script principal:
 python main.py
 ```
 
-O bot ficará à espera de comandos no teu telemóvel. Abre o teu bot no Telegram e utiliza os seguintes comandos:
+O bot ficará em modo de escuta. Abre o teu bot no Telegram e utiliza os seguintes comandos:
 
-/start - Abre o menu para selecionares o par de moedas e iniciares o treino do modelo.
+* `/start` - Abre o menu para selecionares o par de moedas e iniciares a máquina preditiva.
+* `/stop` - Para a análise e a abertura de novas posições (posições já abertas continuam a ser geridas até ao fecho do cesto).
+* `/status` - Mostra o estado de execução atual, par ativo e o lote a ser utilizado.
 
-/stop - Para a análise e a abertura de novas posições (posições abertas mantêm-se geridas pelo MT5).
+## Aviso de Risco Severo
 
-/status - Mostra o estado atual, o par ativo e o tamanho do lote.
+Este bot utiliza uma estratégia de **Martingale**. Não possui *Stop Loss* fixo por ordem. Em vez disso, depende da alavancagem extrema e da margem livre para abrir lotes cada vez maiores e fazer o preço médio da operação. 
 
-## Aviso de Risco
-
-Este bot utiliza uma estratégia agressiva de Grid/Martingale sem Stop Loss fixo por ordem, dependendo do lucro líquido do "cesto". Isto exige uma margem livre considerável. Foi desenhado estritamente para contas de demonstração com capital elevado (ex: 100.000€). Executar este código numa conta real, especialmente com capital reduzido, resultará quase garantidamente na perda total dos fundos (Margin Call). Utiliza por tua conta e risco.
+Foi otimizado para contas **Cent** ou para uma abordagem de alto risco em capital reduzido (ex: alavancagem 1:500 com 50€ a 100€). Executar este sistema durante eventos de alto impacto (notícias macroeconómicas) ou em mercados de forte tendência unilateral sem pausas resultará no esgotamento da margem livre e na liquidação total da conta (*Margin Call*). Utilizar exclusivamente com capital de risco ("dinheiro de casino") e adotar o hábito de levantar o capital inicial assim que a conta duplicar.

@@ -1,8 +1,8 @@
+MetaTrader5
 pandas
 numpy
-xgboost
 scikit-learn
-MetaTrader5
-pyTelegramBotAPI
+xgboost
 python-dotenv
+pyTelegramBotAPI
 matplotlib
