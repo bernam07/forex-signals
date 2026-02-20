@@ -5,3 +5,4 @@ scikit-learn
 MetaTrader5
 pyTelegramBotAPI
 python-dotenv
+matplotlib

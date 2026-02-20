@@ -5,16 +5,22 @@ def apply_smc_features(df):
     df['Hour'] = df['time'].dt.hour
     df['Session_NY'] = np.where((df['Hour'] >= 8) & (df['Hour'] <= 11), 1, 0)
     
-    df['4H_High'] = df['high'].rolling(window=48).max().shift(1)
-    df['4H_Low'] = df['low'].rolling(window=48).min().shift(1)
+    df['Returns'] = df['close'].pct_change()
     
-    df['Sweep_High'] = np.where((df['high'] > df['4H_High']) & (df['close'] < df['4H_High']), 1, 0)
-    df['Sweep_Low'] = np.where((df['low'] < df['4H_Low']) & (df['close'] > df['4H_Low']), 1, 0)
+    df['High_Low_Range'] = (df['high'] - df['low']) / df['low']
+    df['Close_Open_Range'] = (df['close'] - df['open']) / df['open']
     
-    df['FVG_Bull'] = np.where(df['low'] > df['high'].shift(2), 1, 0)
-    df['FVG_Bear'] = np.where(df['high'] < df['low'].shift(2), 1, 0)
+    df['MA_50'] = df['close'].rolling(window=50).mean()
+    df['Dist_MA_50'] = (df['close'] - df['MA_50']) / df['MA_50']
     
-    df['Trend'] = np.where(df['close'] > df['close'].rolling(50).mean(), 1, -1)
+    high_low = df['high'] - df['low']
+    high_close = np.abs(df['high'] - df['close'].shift())
+    low_close = np.abs(df['low'] - df['close'].shift())
+    ranges = pd.concat([high_low, high_close, low_close], axis=1)
+    true_range = np.max(ranges, axis=1)
+    df['ATR_14'] = true_range.rolling(14).mean()
+    
+    df['ATR_Pct'] = df['ATR_14'] / df['close']
     
     delta = df['close'].diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()

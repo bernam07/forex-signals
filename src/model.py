@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
 def train_and_save_model(df, model_path="saved_xgboost_model.json"):
-    features = ['Sweep_High', 'Sweep_Low', 'FVG_Bull', 'FVG_Bear', 'Session_NY', 'Trend', 'RSI']
+    features = ['Session_NY', 'Returns', 'High_Low_Range', 'Close_Open_Range', 'Dist_MA_50', 'ATR_Pct', 'RSI']
     X = df[features]
     y = df['Target']
     
